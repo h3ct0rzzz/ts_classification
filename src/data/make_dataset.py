@@ -1,7 +1,12 @@
-import pandas as pd
+import datetime
+import itertools
+from functools import wraps
+from typing import Union, List
+
 import numpy as np
+import pandas as pd
 from src.features.build_features import *
-from constants import (
+from src.constants import (
     QUANTILE_25_VALUE,
     QUANTILE_75_VALUE,
     AUTOCORRELATION_LAG,
@@ -26,15 +31,27 @@ def generate_features(df: pd.DataFrame) -> pd.DataFrame:
     for name, func in globals().items():
         if hasattr(func, 'is_feature'):
             if name == 'quantile':
-                feature_dict['quantile_25'] = df['values'].apply(lambda x: func(x, QUANTILE_25_VALUE))
-                feature_dict['quantile_75'] = df['values'].apply(lambda x: func(x, QUANTILE_75_VALUE))
+                feature_dict['quantile_25'] = df['values'].apply(
+                    lambda values: func(values, QUANTILE_25_VALUE)
+                )
+                feature_dict['quantile_75'] = df['values'].apply(
+                    lambda values: func(values, QUANTILE_75_VALUE)
+                )
             elif name == 'autocorrelation':
-                feature_dict['autocorrelation_lag_1'] = df['values'].apply(lambda x: func(x, AUTOCORRELATION_LAG))
+                feature_dict['autocorrelation_lag_1'] = df['values'].apply(
+                    lambda values: func(values, AUTOCORRELATION_LAG)
+                )
             elif name == 'fft_coefficient':
-                feature_dict['fft_coefficient_0'] = df['values'].apply(lambda x: np.abs(func(x, FFT_COEFFICIENT_0)))
-                feature_dict['fft_coefficient_1'] = df['values'].apply(lambda x: np.abs(func(x, FFT_COEFFICIENT_1)))
+                feature_dict['fft_coefficient_0'] = df['values'].apply(
+                    lambda values: np.abs(func(values, FFT_COEFFICIENT_0))
+                )
+                feature_dict['fft_coefficient_1'] = df['values'].apply(
+                    lambda values: np.abs(func(values, FFT_COEFFICIENT_1))
+                )
             elif name == 'number_crossing_m':
-                feature_dict['number_crossing_0'] = df['values'].apply(lambda x: func(x, NUMBER_CROSSING_VALUE))
+                feature_dict['number_crossing_0'] = df['values'].apply(
+                    lambda values: func(values, NUMBER_CROSSING_VALUE)
+                )
             else:
                 feature_dict[name] = df['values'].apply(func)
 
@@ -46,6 +63,6 @@ def generate_features(df: pd.DataFrame) -> pd.DataFrame:
     return processed_df
 
 
-def make_dataset(df: pd.DataFrame) -> pd.DataFrame:
-    df_clean = remove_rows_with_null_values(df)
+def make_dataset(dataframe: pd.DataFrame) -> pd.DataFrame:
+    df_clean = remove_rows_with_null_values(dataframe)
     return generate_features(df_clean)
