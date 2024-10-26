@@ -13,6 +13,7 @@ def feature_function(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
+
     setattr(wrapper, 'is_feature', True)
     return wrapper
 
@@ -49,7 +50,7 @@ def max_trend_length(data: Union[List[float], np.ndarray]) -> int:
     trend_length = max_trend = 1
 
     for i in range(1, len(diffs)):
-        if diffs[i] * diffs[i-1] > 0:
+        if diffs[i] * diffs[i - 1] > 0:
             trend_length += 1
         else:
             max_trend = max(max_trend, trend_length)
@@ -75,17 +76,14 @@ def calculate_date(date: datetime.date) -> int:
     return (date - EPOCH_DATE).days
 
 
-@feature_function
 def get_start_date(dates: List[datetime.date]) -> int:
     return calculate_date(dates[0])
 
 
-@feature_function
 def get_end_date(dates: List[datetime.date]) -> int:
     return calculate_date(dates[-1])
 
 
-@feature_function
 def calculate_duration(dates: List[datetime.date]) -> int:
     return get_end_date(dates) - get_start_date(dates)
 
@@ -137,7 +135,7 @@ def complexity_invariant_distance(data: Union[List[float], np.ndarray], normaliz
             data_copy = (data_copy - np.mean(data_copy)) / std
         else:
             return 0.0
-    return np.sqrt(np.sum(np.diff(data_copy)**2))
+    return np.sqrt(np.sum(np.diff(data_copy) ** 2))
 
 
 @feature_function
@@ -300,6 +298,7 @@ def maximum(data: Union[List[float], np.ndarray]) -> float:
     data = np.asarray(data)
     return np.max(data)
 
+
 @feature_function
 def absolute_maximum(data: Union[List[float], np.ndarray]) -> float:
     data = np.asarray(data)
@@ -341,7 +340,8 @@ def number_crossing_m(data: Union[List[float], np.ndarray], threshold: float) ->
 
 
 @feature_function
-def energy_ratio_by_chunks(data: Union[List[float], np.ndarray], num_segments: int = 10, segment_focus: int = 0) -> float:
+def energy_ratio_by_chunks(data: Union[List[float], np.ndarray], num_segments: int = 10,
+                           segment_focus: int = 0) -> float:
     data = np.asarray(data)
     data_abs = np.abs(data)
     segments = np.array_split(data_abs, num_segments)
